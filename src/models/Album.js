@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 // Schema
-const albumSchema = new mongoose.Schema(
+const albumSchema = new Schema(
   {
     title: {
       type: String,
