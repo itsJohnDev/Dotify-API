@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const userRouter = require("./routes/userRoutes");
 const { StatusCodes } = require("http-status-codes");
+const artistRouter = require("./routes/artistRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +26,7 @@ app.use(express.json());
 
 //   Routes
 app.use("/api/users", userRouter);
+app.use("/api/artists", artistRouter);
 
 // Error Handling Middleware
 // Not Found 404
