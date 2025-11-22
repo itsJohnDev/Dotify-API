@@ -98,4 +98,92 @@ const getArtistById = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { createArtists, getArtists, getArtistById };
+// @desc - Update Artist Details
+// @route - PUT /api/artists/:id
+// @Access - Private/Admin
+const updateArtist = asyncHandler(async (req, res) => {
+  const { name, bio, genres, isVerified } = req.body;
+
+  const artist = await Artist.findById(req.params.id);
+
+  if (!artist) {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("Artist not found");
+  }
+
+  // Update artist details
+  artist.name = name || artist.name;
+  artist.bio = bio || artist.bio;
+  artist.genres = genres || artist.genres;
+  artist.isVerified =
+    isVerified !== undefined ? isVerified === "true" : artist.isVerified;
+
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.path, "dotify/artists");
+    artist.image = result.secure_url;
+  }
+
+  //  Save updated artist details
+  const updatedArtist = await artist.save();
+  res.status(StatusCodes.OK).json(updatedArtist);
+});
+
+// @desc - Delete Artist
+// @route - DELETE /api/artists/:id
+// @Access - Private/Admin
+const deleteArtist = asyncHandler(async (req, res) => {
+  const artist = await Artist.findById(req.params.id);
+
+  if (!artist) {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("Artist not found");
+  }
+
+  // Delete all songs by artist
+  await Song.deleteMany({ artist: artist._id });
+
+  // Delete all albums by artist
+  await Song.deleteMany({ artist: artist._id });
+
+  await artist.deleteOne();
+  res.status(StatusCodes.OK).json({ message: "Artist deleted." });
+});
+
+// @desc - Get Top 10 Artist by followers
+// @route - GET /api/artists/top?limit=10
+// @Access - Public
+const getTopArtists = asyncHandler(async (req, res) => {
+  const limit = req.query;
+  const artists = await Artist.find().sort({ followers: -1 }).limit(limit);
+
+  res.status(StatusCodes.OK).json(artists);
+});
+
+// @desc - Get Artist's Top Songs
+// @route - GET /api/artists/:id/top-songs?limit=10
+// @Access - Public
+const getArtistTopSongs = asyncHandler(async (req, res) => {
+  const { limit } = req.query;
+
+  const songs = await Song.find()
+    .sort({ plays: -1 })
+    .limit(limit)
+    .populate("album", "title", "coverImage");
+
+  if (songs.length > 0) {
+    res.status(StatusCodes.OK).json(songs);
+  } else {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("No songs found for this artist");
+  }
+});
+
+module.exports = {
+  createArtists,
+  getArtists,
+  getArtistById,
+  updateArtist,
+  deleteArtist,
+  getTopArtists,
+  getArtistTopSongs,
+};

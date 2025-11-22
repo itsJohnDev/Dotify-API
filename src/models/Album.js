@@ -43,8 +43,8 @@ const albumSchema = new Schema(
       trim: true,
     },
     isExplicit: {
-      type: String,
-      trim: true,
+      type: Boolean,
+      default: false,
     },
   },
   {
