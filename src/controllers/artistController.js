@@ -7,7 +7,7 @@ const uploadToCloudinary = require("../utils/cloudinaryUpload");
 
 // @desc - Create a new Artist
 // @route - POST /api/artists
-// @Access - Private
+// @Access - Private/admin
 const createArtists = asyncHandler(async (req, res) => {
   // Check if req.body is defined
   if (!req.body) {
@@ -80,7 +80,7 @@ const getArtists = asyncHandler(async (req, res) => {
     artists,
     page: parseInt(page),
     pages: Math.ceil(count / parseInt(limit)),
-    totalArtist: count,
+    totalArtists: count,
   });
 });
 

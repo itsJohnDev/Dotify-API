@@ -67,7 +67,7 @@ const createAlbum = asyncHandler(async (req, res) => {
     coverImage,
     genre,
     description,
-    isExplicit: isExplicit === "true",
+    isExplicit: isExplicit === "false",
   });
 
   //   Add album to artist's albums
@@ -80,28 +80,116 @@ const createAlbum = asyncHandler(async (req, res) => {
 // @route - GET /api/albums
 // @Access - Public
 const getAllAlbums = asyncHandler(async (req, res) => {
-  res.send("Get all albums");
+  const { genre, artist, search, page = 1, limit = 10 } = req.query;
+
+  //   Build filter object
+  const filter = {};
+  if (genre) filter.genre = genre;
+  if (artist) filter.artist = artist;
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { genre: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // Count total albums with filter
+  const count = await Album.countDocuments(filter);
+  // Pagination
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Get Albums
+  const albums = await Album.find(filter)
+    .sort({ releasedDate: -1 })
+    .limit(limit)
+    .skip(skip)
+    .populate("artist", "name image");
+
+  res.status(StatusCodes.OK).json({
+    albums,
+    page: parseInt(page),
+    pages: Math.ceil(count / parseInt(limit)),
+    totalAlbums: count,
+  });
 });
 
 // @desc - Get album by ID
 // @route - GET /api/albums/:id
 // @Access - Public
 const getAlbumById = asyncHandler(async (req, res) => {
-  res.send("Get album by ID");
+  const album = await Album.findById(req.params.id).populate(
+    "artist",
+    "name image bio"
+  );
+
+  if (album) {
+    res.status(StatusCodes.OK).json(album);
+  } else {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("Album not found");
+  }
 });
 
 // @desc - Update album details
 // @route - PUT /api/albums/:id
 // @Access - Private/Admin
 const updateAlbum = asyncHandler(async (req, res) => {
-  res.send("Update album details");
+  const { title, releasedDate, genre, description, isExplicit } = req.body;
+
+  const album = await Album.findById(req.params.id);
+
+  if (!album) {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("Album not found");
+  }
+
+  // Update artist details
+  album.title = title || album.title;
+  album.releasedDate = releasedDate || album.releasedDate;
+  album.genre = genre || album.genre;
+  album.description = description || album.description;
+  album.isExplicit =
+    isExplicit !== undefined ? isExplicit === "true" : album.isExplicit;
+
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.path, "dotify/albums");
+    album.coverImage = result.secure_url;
+  }
+
+  //  Save updated artist details
+  const updatedAlbum = await album.save();
+  res.status(StatusCodes.OK).json(updatedAlbum);
 });
 
-// @desc - Update album details
+// @desc - Delete album
 // @route - DELETE /api/albums/:id
 // @Access - Private/Admin
 const deleteAlbum = asyncHandler(async (req, res) => {
-  res.send("Delete an album");
+  const album = await Album.findById(req.params.id);
+
+  if (!album) {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("Album not found");
+  }
+
+  //   Remove album from artist's albums
+  await Artist.updateOne(
+    {
+      _id: album.artist,
+    },
+    {
+      $pull: { albums: album._id },
+    }
+  );
+
+  //   Update songs to remove album reference
+  await Song.updateMany({ album: album._id }, { $unset: { album: 1 } });
+
+  await album.deleteOne();
+  res.status(StatusCodes.OK).json({
+    message: "Album removed",
+  });
 });
 
 // @desc - Add songs to album
