@@ -21,9 +21,9 @@ const songUpload = upload.fields([
 
 // Public
 songRouter.get("/", getSongs);
+songRouter.get("/top-songs", getTopSongs);
 songRouter.get("/new-releases", getNewReleases);
 songRouter.get("/:id", getSongById);
-songRouter.get("/top", getTopSongs);
 
 // Private
 songRouter.post("/", protect, isAdmin, songUpload, createSong);

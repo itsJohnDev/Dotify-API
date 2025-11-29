@@ -231,12 +231,32 @@ const deleteSong = asyncHandler(async (req, res) => {
 // @desc - Get top songs by plays
 // @route - GET /api/songs/top?limit=5
 // @Access - Public
-const getTopSongs = asyncHandler(async (req, res) => {});
+const getTopSongs = asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+
+  const songs = await Song.find()
+    .sort({ plays: -1 })
+    .limit(limit)
+    .populate("artist", "name image")
+    .populate("album", "title coverImage");
+
+  res.status(StatusCodes.OK).json(songs);
+});
 
 // @desc - Get new releases (newly added songs)
 // @route - GET /api/songs/new-releases?limit=10
 // @Access - Public
-const getNewReleases = asyncHandler(async (req, res) => {});
+const getNewReleases = asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+
+  const songs = await Song.find()
+    .sort({ releasedDate: -1 })
+    .limit(limit)
+    .populate("artist", "name image")
+    .populate("album", "title coverImage");
+
+  res.status(StatusCodes.OK).json(songs);
+});
 
 module.exports = {
   createSong,
