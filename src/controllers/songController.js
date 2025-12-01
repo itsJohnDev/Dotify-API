@@ -5,7 +5,7 @@ const Album = require("../models/Album");
 const Song = require("../models/Song");
 const uploadToCloudinary = require("../utils/cloudinaryUpload");
 
-// @desc - Create a new Song
+// @desc - Create A New Song
 // @route - POST /api/songs
 // @Access - Private/Admin
 const createSong = asyncHandler(async (req, res) => {
@@ -82,7 +82,7 @@ const createSong = asyncHandler(async (req, res) => {
   res.status(StatusCodes.CREATED).json(song);
 });
 
-// @desc - Get all songs with pagination and filtering
+// @desc - Get All Songs With Pagination And Filtering
 // @route - GET /api/songs
 // @Access - Public
 const getSongs = asyncHandler(async (req, res) => {
@@ -123,7 +123,7 @@ const getSongs = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc - Get song with Id
+// @desc - Get Song With th ID
 // @route - GET /api/songs/:id
 // @Access - Public
 const getSongById = asyncHandler(async (req, res) => {
@@ -228,7 +228,7 @@ const deleteSong = asyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Song removed" });
 });
 
-// @desc - Get top songs by plays
+// @desc - Get Top Songs By Plays
 // @route - GET /api/songs/top?limit=5
 // @Access - Public
 const getTopSongs = asyncHandler(async (req, res) => {
@@ -243,7 +243,7 @@ const getTopSongs = asyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json(songs);
 });
 
-// @desc - Get new releases (newly added songs)
+// @desc - Get New Releases (newly added songs)
 // @route - GET /api/songs/new-releases?limit=10
 // @Access - Public
 const getNewReleases = asyncHandler(async (req, res) => {
