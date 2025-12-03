@@ -37,6 +37,7 @@ app.use(
 );
 app.use(helmet());
 app.use(cors());
+
 // Sanitize
 app.use((req, res, next) => {
   Object.defineProperty(req, "query", {
