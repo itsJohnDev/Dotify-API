@@ -16,7 +16,7 @@ const albumRouter = express.Router();
 
 // Public
 albumRouter.get("/", getAllAlbums);
-albumRouter.get("/new-releases", getNewReleases);
+// albumRouter.get("/new-releases", getNewReleases);
 albumRouter.get("/:id", getAlbumById);
 
 // Private
@@ -35,12 +35,12 @@ albumRouter.put(
   updateAlbum
 );
 albumRouter.delete("/:id", protect, isAdmin, deleteAlbum);
-albumRouter.put("/:id/add-songs", protect, isAdmin, addSongsToALbum);
-albumRouter.delete(
-  "/:id/remove-songs/:songId",
-  protect,
-  isAdmin,
-  removeSongsFromAlbum
-);
+// albumRouter.put("/:id/add-songs", protect, isAdmin, addSongsToALbum);
+// albumRouter.delete(
+//   "/:id/remove-songs/:songId",
+//   protect,
+//   isAdmin,
+//   removeSongsFromAlbum
+// );
 
 module.exports = albumRouter;

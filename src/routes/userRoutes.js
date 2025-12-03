@@ -4,6 +4,9 @@ const {
   loginUser,
   getUserProfile,
   updateUserProfile,
+  toggleLikeSong,
+  toggleFollowArtist,
+  toggleFollowPlaylist,
 } = require("../controllers/userController");
 const { protect } = require("../../middleware/auth");
 const upload = require("../../middleware/upload");
@@ -21,5 +24,8 @@ userRouter.put(
   upload.single("profilePicture"),
   updateUserProfile
 );
+userRouter.put("/like-song/:id", protect, toggleLikeSong);
+userRouter.put("/follow-artist/:id", protect, toggleFollowArtist);
+userRouter.put("/follow-playlist/:id", protect, toggleFollowPlaylist);
 
 module.exports = userRouter;

@@ -72,7 +72,7 @@ const getArtists = asyncHandler(async (req, res) => {
 
   // Get Artists
   const artists = await Artist.find(filter)
-    .sort({ followers: 1 })
+    .sort({ followers: -1 })
     .limit(parseInt(limit))
     .skip(skip);
 
