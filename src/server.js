@@ -7,6 +7,10 @@ const artistRouter = require("./routes/artistRoutes");
 const albumRouter = require("./routes/albumRoutes");
 const songRouter = require("./routes/songRoutes");
 const playlistRouter = require("./routes/playlistRoutes");
+const { rateLimit } = require("express-rate-limit");
+const helmet = require("helmet");
+const cors = require("cors");
+const mongoSanitize = require("express-mongo-sanitize");
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +27,17 @@ mongoose
   .catch((err) => {
     console.log("Error connecting to the database", err.message);
   });
+
+// Addtional Packages
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  })
+);
+app.use(helmet());
+app.use(cors());
+app.use(mongoSanitize());
 
 //   Pass incoming data
 app.use(express.json());
