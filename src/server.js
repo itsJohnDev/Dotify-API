@@ -37,6 +37,16 @@ app.use(
 );
 app.use(helmet());
 app.use(cors());
+// Sanitize
+app.use((req, res, next) => {
+  Object.defineProperty(req, "query", {
+    value: { ...req.query }, // Create a new mutable object with the existing query parameters
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+  next();
+});
 app.use(mongoSanitize());
 
 //   Pass incoming data
